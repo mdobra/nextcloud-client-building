@@ -324,15 +324,16 @@ Function EnsureOwncloudShutdown
    !insertmacro CheckAndConfirmEndProcess "${APPLICATION_EXECUTABLE}"
 FunctionEnd
 
-Function InstallRedistributables
-   ${If} ${RunningX64}
-      ExecWait '"$OUTDIR\vc_redist.x64.exe" /install /quiet /norestart'
-   ${Else}
-      ExecWait '"$OUTDIR\vc_redist.x86.exe" /install /quiet /norestart'
-   ${EndIf}
-   Delete "$OUTDIR\vc_redist.x86.exe"
-   Delete "$OUTDIR\vc_redist.x64.exe"
-FunctionEnd
+;Redist DLLs now already deployed in installation dir and shellext statically linked
+;Function InstallRedistributables
+;   ${If} ${RunningX64}
+;      ExecWait '"$OUTDIR\vc_redist.x64.exe" /install /quiet /norestart'
+;   ${Else}
+;      ExecWait '"$OUTDIR\vc_redist.x86.exe" /install /quiet /norestart'
+;   ${EndIf}
+;   Delete "$OUTDIR\vc_redist.x86.exe"
+;   Delete "$OUTDIR\vc_redist.x64.exe"
+;FunctionEnd
 
 ##############################################################################
 #                                                                            #
@@ -446,21 +447,19 @@ SectionEnd
       DetailPrint $OPTION_SECTION_SC_SHELL_EXT_DetailPrint
       ;File "${VCREDISTPATH}\vcredist_x86.exe"  ;now collected by windeployqt
       ;File "${VCREDISTPATH}\vcredist_x64.exe"  ;now collected by windeployqt
-      Call InstallRedistributables
+      ;Call InstallRedistributables             ;Redist DLLs now already deployed in installation dir and shellext statically linked
       CreateDirectory "$INSTDIR\shellext"
       !define LIBRARY_COM
       !define LIBRARY_SHELL_EXTENSION
       !define LIBRARY_IGNORE_VERSION
       ${If} ${RunningX64}
          !define LIBRARY_X64
-         !insertmacro InstallLib DLL NOTSHARED REBOOT_PROTECTED "${SETUP_COLLECTION_PATH}\Win64\shellext\OCUtil.dll" "$INSTDIR\shellext\OCUtil.dll" "$INSTDIR\shellext"
-         !insertmacro InstallLib REGDLL NOTSHARED REBOOT_PROTECTED "${SETUP_COLLECTION_PATH}\Win64\shellext\OCOverlays.dll" "$INSTDIR\shellext\OCOverlays.dll" "$INSTDIR\shellext"
-         !insertmacro InstallLib REGDLL NOTSHARED REBOOT_PROTECTED "${SETUP_COLLECTION_PATH}\Win64\shellext\OCContextMenu.dll" "$INSTDIR\shellext\OCContextMenu.dll" "$INSTDIR\shellext"
+         !insertmacro InstallLib REGDLL NOTSHARED REBOOT_PROTECTED "${SETUP_COLLECTION_PATH}\Win64\shellext\NCOverlays.dll" "$INSTDIR\shellext\NCOverlays.dll" "$INSTDIR\shellext"
+         !insertmacro InstallLib REGDLL NOTSHARED REBOOT_PROTECTED "${SETUP_COLLECTION_PATH}\Win64\shellext\NCContextMenu.dll" "$INSTDIR\shellext\NCContextMenu.dll" "$INSTDIR\shellext"
          !undef LIBRARY_X64
      ${Else}
-         !insertmacro InstallLib DLL NOTSHARED REBOOT_PROTECTED "${SETUP_COLLECTION_PATH}\Win32\shellext\OCUtil.dll" "$INSTDIR\shellext\OCUtil.dll" "$INSTDIR\shellext"
-         !insertmacro InstallLib REGDLL NOTSHARED REBOOT_PROTECTED "${SETUP_COLLECTION_PATH}\Win32\shellext\OCOverlays.dll" "$INSTDIR\shellext\OCOverlays.dll" "$INSTDIR\shellext"
-         !insertmacro InstallLib REGDLL NOTSHARED REBOOT_PROTECTED "${SETUP_COLLECTION_PATH}\Win32\shellext\OCContextMenu.dll" "$INSTDIR\shellext\OCContextMenu.dll" "$INSTDIR\shellext"
+         !insertmacro InstallLib REGDLL NOTSHARED REBOOT_PROTECTED "${SETUP_COLLECTION_PATH}\Win32\shellext\NCOverlays.dll" "$INSTDIR\shellext\NCOverlays.dll" "$INSTDIR\shellext"
+         !insertmacro InstallLib REGDLL NOTSHARED REBOOT_PROTECTED "${SETUP_COLLECTION_PATH}\Win32\shellext\NCContextMenu.dll" "$INSTDIR\shellext\NCContextMenu.dll" "$INSTDIR\shellext"
       ${Endif}
       !undef LIBRARY_COM
       !undef LIBRARY_SHELL_EXTENSION
@@ -651,14 +650,12 @@ Section Uninstall
       ${If} ${HasSection} SEC_SHELL_EXT
         DetailPrint "Uninstalling x64 overlay DLLs"
         !define LIBRARY_X64
-        !insertmacro UnInstallLib REGDLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\shellext\OCContextMenu.dll"
-        !insertmacro UnInstallLib REGDLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\shellext\OCOverlays.dll"
-        !insertmacro UnInstallLib DLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\shellext\OCUtil.dll"
+        !insertmacro UnInstallLib REGDLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\shellext\NCContextMenu.dll"
+        !insertmacro UnInstallLib REGDLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\shellext\NCOverlays.dll"
         !undef LIBRARY_X64
         DetailPrint "Uninstalling x86 overlay DLLs"
-        !insertmacro UnInstallLib REGDLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\shellext\OCContextMenu.dll"
-        !insertmacro UnInstallLib REGDLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\shellext\OCOverlays.dll"
-        !insertmacro UnInstallLib DLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\shellext\OCUtil.dll"
+        !insertmacro UnInstallLib REGDLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\shellext\NCContextMenu.dll"
+        !insertmacro UnInstallLib REGDLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\shellext\NCOverlays.dll"
       ${EndIf}
       !undef LIBRARY_COM
       !undef LIBRARY_SHELL_EXTENSION
